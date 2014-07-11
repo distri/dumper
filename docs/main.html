@@ -32,10 +32,26 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
+              
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript"><span class="comment"># TODO: Update editor hamlet and fix this required global</span>
+global.Observable = require <span class="string">"observable"</span></code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
               <p>Dump files and have them show up in S3.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">require <span class="string">"./lib/drop"</span>
+            <div class="content"><pre><code class="lang-coffeescript">{applyStylesheet} = require <span class="string">"util"</span>
+applyStylesheet require <span class="string">"./style"</span>
+
+require <span class="string">"./lib/drop"</span>
 require <span class="string">"./lib/paste"</span>
 
 Stash = require <span class="string">"./stash"</span>
@@ -43,24 +59,28 @@ stash = Stash()
 
 Trinket = require <span class="string">"trinket"</span>
 <span class="comment"># TODO: Better way to get the policy</span>
+<span class="comment"># maybe from location.hash?</span>
 trinket = Trinket(JSON.parse(localStorage.TRINKET_POLICY))
 
 <span class="function"><span class="title">handler</span></span> = (file) -&gt;
   console.log file
   <span class="comment"># TODO: Add file to list of files</span>
 
-  sha = Trinket.SHA1(file)
+  trinket.post file
 
-  stash.add
-    lastModifiedDate: file.lastModifiedDate
-    size: file.size
-    name: file.name
-    type: file.type
-    path: trinket.basePath() + sha
-  <span class="comment"># trinket.post file</span>
+  Trinket.SHA1 file, (sha) -&gt;
+    stash.push
+      lastModifiedDate: file.lastModifiedDate
+      size: file.size
+      name: file.name
+      type: file.type
+      path: trinket.basePath() + sha
 
 $(<span class="string">"html"</span>).dropFile handler
-$(document).pasteFile handler</code></pre>
+$(document).pasteFile handler
+
+document.body.appendChild require(<span class="string">"./files"</span>)
+  files: stash</code></pre>
 </div>
         </li>
         
