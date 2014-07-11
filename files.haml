@@ -1,0 +1,7 @@
+%ul.files
+  - each @files, ->
+    %li
+      %a(href=@path target="_blank")
+        - if @type.match /^image/
+          %img(src=@path)
+        %span= @name
