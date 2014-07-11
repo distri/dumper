@@ -18,10 +18,47 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              
+              <h1 id="paste">Paste</h1>
+
             </div>
             <div class="content"><pre><code class="lang-coffeescript">
 </code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>TODO: This isn&#39;t so simple as the file dropping :(</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript"><span class="keyword">do</span> ($=jQuery) -&gt;
+  $.event.fix = <span class="keyword">do</span> (originalFix=$.event.fix) -&gt;
+    (event) -&gt;
+      event = originalFix.apply(<span class="keyword">this</span>, arguments)
+
+      <span class="keyword">if</span> event.type.indexOf(<span class="string">'copy'</span>) == <span class="number">0</span> || event.type.indexOf(<span class="string">'paste'</span>) == <span class="number">0</span>
+        event.clipboardData = event.originalEvent.clipboardData
+
+      <span class="keyword">return</span> event
+
+  $.fn.<span class="function"><span class="title">pasteFile</span></span> = (handler) -&gt;
+    <span class="property">@each</span> -&gt;
+      element = <span class="keyword">this</span>
+      $<span class="keyword">this</span> = $(<span class="keyword">this</span>)
+
+      $<span class="keyword">this</span>.bind <span class="string">'paste'</span>, (event) -&gt;
+        clipboardData = event.clipboardData
+        console.log <span class="string">"pasted!"</span>
+        <span class="keyword">debugger</span>
+        [<span class="number">0.</span>..clipboardData.types.length].forEach (i) -&gt;
+          console.log clipboardData.items[i].getAsFile()
+
+        <span class="comment"># TODO: Handle other types?</span>
+        <span class="comment"># handler clipboardData.items[0]</span></code></pre>
 </div>
         </li>
         

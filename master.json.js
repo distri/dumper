@@ -14,12 +14,12 @@ window["distri/dumper:master"]({
     },
     "pixie.cson": {
       "path": "pixie.cson",
-      "content": "remoteDependencies: [\n  \"https://code.jquery.com/jquery-1.11.0.min.js\"\n]\ndependencies: \n  trinket: \"distri/s3-trinket:v0.1.2\"\n",
+      "content": "remoteDependencies: [\n  \"https://code.jquery.com/jquery-1.11.0.min.js\"\n]\ndependencies:\n  trinket: \"distri/s3-trinket:v0.1.2\"\n",
       "mode": "100644"
     },
     "main.coffee.md": {
       "path": "main.coffee.md",
-      "content": "Dumper\n======\n\nDump files and have them show up in S3.\n\n    require \"./lib/drop\"\n\n    Trinket = require \"trinket\"\n\n    # TODO: Better way to get the policy\n    trinket = Trinket(JSON.parse(localStorage.TRINKET_POLICY))\n\n    handler = (file) ->\n      console.log file\n      # TODO: Add file to list of files\n      trinket.post file\n\n    $(\"html\").dropFile handler\n\n    # $(document).pasteImageReader handler\n",
+      "content": "Dumper\n======\n\nDump files and have them show up in S3.\n\n    require \"./lib/drop\"\n    require \"./lib/paste\"\n\n    Stash = require \"./stash\"\n    stash = Stash()\n\n    Trinket = require \"trinket\"\n    # TODO: Better way to get the policy\n    trinket = Trinket(JSON.parse(localStorage.TRINKET_POLICY))\n\n    handler = (file) ->\n      console.log file\n      # TODO: Add file to list of files\n      \n      sha = Trinket.SHA1(file)\n\n      stash.add\n        lastModifiedDate: file.lastModifiedDate\n        size: file.size\n        name: file.name\n        type: file.type\n        path: trinket.basePath() + sha\n      # trinket.post file\n\n    $(\"html\").dropFile handler\n    $(document).pasteFile handler\n",
       "mode": "100644"
     },
     "lib/drop.coffee.md": {
@@ -29,7 +29,12 @@ window["distri/dumper:master"]({
     },
     "lib/paste.coffee.md": {
       "path": "lib/paste.coffee.md",
-      "content": "",
+      "content": "Paste\n=====\n\nTODO: This isn't so simple as the file dropping :(\n\n    do ($=jQuery) ->\n      $.event.fix = do (originalFix=$.event.fix) ->\n        (event) ->\n          event = originalFix.apply(this, arguments)\n\n          if event.type.indexOf('copy') == 0 || event.type.indexOf('paste') == 0\n            event.clipboardData = event.originalEvent.clipboardData\n\n          return event\n\n      $.fn.pasteFile = (handler) ->\n        @each ->\n          element = this\n          $this = $(this)\n\n          $this.bind 'paste', (event) ->\n            clipboardData = event.clipboardData\n            console.log \"pasted!\"\n            debugger\n            [0...clipboardData.types.length].forEach (i) ->\n              console.log clipboardData.items[i].getAsFile()\n\n            # TODO: Handle other types?\n            # handler clipboardData.items[0]\n",
+      "mode": "100644"
+    },
+    "stash.coffee.md": {
+      "path": "stash.coffee.md",
+      "content": "Stash\n=====\n\nStore a list of file metada with pointers to an S3 CAS bucket.\n\n    module.exports = (name) ->\n      add: (data) ->\n        items JSON.parse(localStorage[name] || \"[]\").push data\n        localStorage[name] = JSON.stringify(items())\n      remove: () ->\n      ",
       "mode": "100644"
     }
   },
@@ -41,7 +46,7 @@ window["distri/dumper:master"]({
     },
     "main": {
       "path": "main",
-      "content": "(function() {\n  var Trinket, handler, trinket;\n\n  require(\"./lib/drop\");\n\n  Trinket = require(\"trinket\");\n\n  trinket = Trinket(JSON.parse(localStorage.TRINKET_POLICY));\n\n  handler = function(file) {\n    console.log(file);\n    return trinket.post(file);\n  };\n\n  $(\"html\").dropFile(handler);\n\n}).call(this);\n",
+      "content": "(function() {\n  var Stash, Trinket, handler, stash, trinket;\n\n  require(\"./lib/drop\");\n\n  require(\"./lib/paste\");\n\n  Stash = require(\"./stash\");\n\n  stash = Stash();\n\n  Trinket = require(\"trinket\");\n\n  trinket = Trinket(JSON.parse(localStorage.TRINKET_POLICY));\n\n  handler = function(file) {\n    var sha;\n    console.log(file);\n    sha = Trinket.SHA1(file);\n    return stash.add({\n      lastModifiedDate: file.lastModifiedDate,\n      size: file.size,\n      name: file.name,\n      type: file.type,\n      path: trinket.basePath() + sha\n    });\n  };\n\n  $(\"html\").dropFile(handler);\n\n  $(document).pasteFile(handler);\n\n}).call(this);\n",
       "type": "blob"
     },
     "lib/drop": {
@@ -51,7 +56,12 @@ window["distri/dumper:master"]({
     },
     "lib/paste": {
       "path": "lib/paste",
-      "content": "(function() {\n\n\n}).call(this);\n",
+      "content": "(function() {\n  (function($) {\n    $.event.fix = (function(originalFix) {\n      return function(event) {\n        event = originalFix.apply(this, arguments);\n        if (event.type.indexOf('copy') === 0 || event.type.indexOf('paste') === 0) {\n          event.clipboardData = event.originalEvent.clipboardData;\n        }\n        return event;\n      };\n    })($.event.fix);\n    return $.fn.pasteFile = function(handler) {\n      return this.each(function() {\n        var $this, element;\n        element = this;\n        $this = $(this);\n        return $this.bind('paste', function(event) {\n          var clipboardData, _i, _ref, _results;\n          clipboardData = event.clipboardData;\n          console.log(\"pasted!\");\n          debugger;\n          return (function() {\n            _results = [];\n            for (var _i = 0, _ref = clipboardData.types.length; 0 <= _ref ? _i < _ref : _i > _ref; 0 <= _ref ? _i++ : _i--){ _results.push(_i); }\n            return _results;\n          }).apply(this).forEach(function(i) {\n            return console.log(clipboardData.items[i].getAsFile());\n          });\n        });\n      });\n    };\n  })(jQuery);\n\n}).call(this);\n",
+      "type": "blob"
+    },
+    "stash": {
+      "path": "stash",
+      "content": "(function() {\n  module.exports = function(name) {\n    return {\n      add: function(data) {\n        items(JSON.parse(localStorage[name] || \"[]\").push(data));\n        return localStorage[name] = JSON.stringify(items());\n      },\n      remove: function() {}\n    };\n  };\n\n}).call(this);\n",
       "type": "blob"
     }
   },

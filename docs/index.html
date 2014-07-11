@@ -36,20 +36,31 @@
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">require <span class="string">"./lib/drop"</span>
+require <span class="string">"./lib/paste"</span>
+
+Stash = require <span class="string">"./stash"</span>
+stash = Stash()
 
 Trinket = require <span class="string">"trinket"</span>
-
 <span class="comment"># TODO: Better way to get the policy</span>
 trinket = Trinket(JSON.parse(localStorage.TRINKET_POLICY))
 
 <span class="function"><span class="title">handler</span></span> = (file) -&gt;
   console.log file
   <span class="comment"># TODO: Add file to list of files</span>
-  trinket.post file
+
+  sha = Trinket.SHA1(file)
+
+  stash.add
+    lastModifiedDate: file.lastModifiedDate
+    size: file.size
+    name: file.name
+    type: file.type
+    path: trinket.basePath() + sha
+  <span class="comment"># trinket.post file</span>
 
 $(<span class="string">"html"</span>).dropFile handler
-
-<span class="comment"># $(document).pasteImageReader handler</span></code></pre>
+$(document).pasteFile handler</code></pre>
 </div>
         </li>
         
