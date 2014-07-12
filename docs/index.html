@@ -69,12 +69,15 @@ trinket = Trinket(JSON.parse(localStorage.TRINKET_POLICY))
   trinket.post file
 
   Trinket.SHA1 file, (sha) -&gt;
+    path = trinket.basePath() + sha
+    console.log path
+
     stash.push
       lastModifiedDate: file.lastModifiedDate
       size: file.size
       name: file.name
       type: file.type
-      path: trinket.basePath() + sha
+      path: path
 
 $(<span class="string">"html"</span>).dropFile handler
 $(document).pasteFile handler
