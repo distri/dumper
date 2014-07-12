@@ -1,5 +1,7 @@
 %ul.files
-  - each @files, ->
+  - files = @files
+  - each files, (file) ->
+    - remove = -> files.remove(file)
     %li
       %a(href=@path target="_blank")
         %span= @name
@@ -9,3 +11,5 @@
       - else if @type.match /^audio/
         %audio(controls=true)
           %source(src=@path)
+
+      %button(click=remove) Delete
