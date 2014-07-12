@@ -2,6 +2,10 @@
   - each @files, ->
     %li
       %a(href=@path target="_blank")
-        - if @type.match /^image/
-          %img(src=@path)
         %span= @name
+
+      - if @type.match /^image/
+        %img(src=@path)
+      - else if @type.match /^audio/
+        %audio(controls=true)
+          %source(src=@path)

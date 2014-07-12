@@ -27,12 +27,15 @@ Dump files and have them show up in S3.
       trinket.post file
 
       Trinket.SHA1 file, (sha) ->
+        path = trinket.basePath() + sha
+        console.log path
+
         stash.push
           lastModifiedDate: file.lastModifiedDate
           size: file.size
           name: file.name
           type: file.type
-          path: trinket.basePath() + sha
+          path: path
 
     $("html").dropFile handler
     $(document).pasteFile handler
