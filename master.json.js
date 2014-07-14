@@ -12,6 +12,12 @@ window["distri/dumper:master"]({
       "mode": "100644",
       "type": "blob"
     },
+    "files.haml": {
+      "path": "files.haml",
+      "content": "%ul.files\n  - files = @files\n  - each files, (file) ->\n    - remove = -> files.remove(file)\n    %li\n      %a(href=@path target=\"_blank\")\n        %span= @name\n\n      - if @type.match /^image/\n        %img(src=@path)\n      - else if @type.match /^audio/\n        %audio(controls=true)\n          %source(src=@path)\n\n      %button(click=remove) Delete\n",
+      "mode": "100644",
+      "type": "blob"
+    },
     "lib/drop.coffee.md": {
       "path": "lib/drop.coffee.md",
       "content": "Drop\n====\n\nPass dropped files dropped on an element to a handler.\n\n    do ($=jQuery) ->\n      $.event.fix = do (originalFix=$.event.fix) ->\n        (event) ->\n          event = originalFix.apply(this, arguments)\n\n          if event.type.indexOf('drag') == 0 || event.type.indexOf('drop') == 0\n            event.dataTransfer = event.originalEvent.dataTransfer\n\n          event\n\n      stopFn = (event) ->\n        event.stopPropagation()\n        event.preventDefault()\n\n      $.fn.dropFile = (handler) ->\n        @each ->\n          element = this\n          $this = $(this)\n\n          $this.on 'dragenter dragover dragleave', stopFn\n\n          $this.on 'drop', (event) ->\n            stopFn(event)\n\n            Array::forEach.call event.dataTransfer.files, (file) ->    \n              handler file\n",
@@ -20,7 +26,7 @@ window["distri/dumper:master"]({
     },
     "lib/paste.coffee.md": {
       "path": "lib/paste.coffee.md",
-      "content": "Paste\n=====\n\nTODO: This isn't so simple as the file dropping :(\n\n    do ($=jQuery) ->\n      $.event.fix = do (originalFix=$.event.fix) ->\n        (event) ->\n          event = originalFix.apply(this, arguments)\n\n          if event.type.indexOf('copy') == 0 || event.type.indexOf('paste') == 0\n            event.clipboardData = event.originalEvent.clipboardData\n\n          return event\n\n      $.fn.pasteFile = (handler) ->\n        @each ->\n          element = this\n          $this = $(this)\n\n          $this.bind 'paste', (event) ->\n            clipboardData = event.clipboardData\n            console.log \"pasted!\"\n            debugger\n            [0...clipboardData.types.length].forEach (i) ->\n              console.log clipboardData.items[i].getAsFile()\n\n            # TODO: Handle other types?\n            # handler clipboardData.items[0]\n",
+      "content": "Paste\n=====\n\n    do ($=jQuery) ->\n      $.event.fix = do (originalFix=$.event.fix) ->\n        (event) ->\n          event = originalFix.apply(this, arguments)\n\n          if event.type.indexOf('copy') == 0 || event.type.indexOf('paste') == 0\n            event.clipboardData = event.originalEvent.clipboardData\n\n          return event\n\n      $.fn.pasteFile = (handler) ->\n        @each ->\n          element = this\n          $this = $(this)\n\n          $this.bind 'paste', (event) ->\n            clipboardData = event.clipboardData\n\n            # Invoke the handler for any file types pasted\n            [0...clipboardData.types.length].forEach (i) ->\n              if file = clipboardData.items[i].getAsFile()\n                handler file\n",
       "mode": "100644",
       "type": "blob"
     },
@@ -42,18 +48,19 @@ window["distri/dumper:master"]({
       "mode": "100644",
       "type": "blob"
     },
-    "files.haml": {
-      "path": "files.haml",
-      "content": "%ul.files\n  - files = @files\n  - each files, (file) ->\n    - remove = -> files.remove(file)\n    %li\n      %a(href=@path target=\"_blank\")\n        %span= @name\n\n      - if @type.match /^image/\n        %img(src=@path)\n      - else if @type.match /^audio/\n        %audio(controls=true)\n          %source(src=@path)\n\n      %button(click=remove) Delete\n",
-      "mode": "100644"
-    },
     "style.styl": {
       "path": "style.styl",
       "content": "html, body\n  height: 100%\n\nbody\n  background-color: hsl(0, 0%, 88%)\n  margin: 0\n\nul\n  list-style-type: none\n  margin: 0\n  padding: 0\n",
-      "mode": "100644"
+      "mode": "100644",
+      "type": "blob"
     }
   },
   "distribution": {
+    "files": {
+      "path": "files",
+      "content": "Runtime = require(\"/lib/_hamljr_runtime\");\n\nmodule.exports = (function(data) {\n  return (function() {\n    var files, __runtime;\n    __runtime = Runtime(this);\n    __runtime.push(document.createDocumentFragment());\n    __runtime.push(document.createElement(\"ul\"));\n    __runtime.classes(\"files\");\n    files = this.files;\n    __runtime.each(files, function(file) {\n      var remove;\n      remove = function() {\n        return files.remove(file);\n      };\n      __runtime.push(document.createElement(\"li\"));\n      __runtime.push(document.createElement(\"a\"));\n      __runtime.attribute(\"href\", this.path);\n      __runtime.attribute(\"target\", \"_blank\");\n      __runtime.push(document.createElement(\"span\"));\n      __runtime.text(this.name);\n      __runtime.pop();\n      __runtime.pop();\n      if (this.type.match(/^image/)) {\n        __runtime.push(document.createElement(\"img\"));\n        __runtime.attribute(\"src\", this.path);\n        __runtime.pop();\n      } else if (this.type.match(/^audio/)) {\n        __runtime.push(document.createElement(\"audio\"));\n        __runtime.attribute(\"controls\", true);\n        __runtime.push(document.createElement(\"source\"));\n        __runtime.attribute(\"src\", this.path);\n        __runtime.pop();\n        __runtime.pop();\n      }\n      __runtime.push(document.createElement(\"button\"));\n      __runtime.attribute(\"click\", remove);\n      __runtime.text(\"Delete\\n\");\n      __runtime.pop();\n      return __runtime.pop();\n    });\n    __runtime.pop();\n    return __runtime.pop();\n  }).call(data);\n});\n",
+      "type": "blob"
+    },
     "lib/drop": {
       "path": "lib/drop",
       "content": "(function() {\n  (function($) {\n    var stopFn;\n    $.event.fix = (function(originalFix) {\n      return function(event) {\n        event = originalFix.apply(this, arguments);\n        if (event.type.indexOf('drag') === 0 || event.type.indexOf('drop') === 0) {\n          event.dataTransfer = event.originalEvent.dataTransfer;\n        }\n        return event;\n      };\n    })($.event.fix);\n    stopFn = function(event) {\n      event.stopPropagation();\n      return event.preventDefault();\n    };\n    return $.fn.dropFile = function(handler) {\n      return this.each(function() {\n        var $this, element;\n        element = this;\n        $this = $(this);\n        $this.on('dragenter dragover dragleave', stopFn);\n        return $this.on('drop', function(event) {\n          stopFn(event);\n          return Array.prototype.forEach.call(event.dataTransfer.files, function(file) {\n            return handler(file);\n          });\n        });\n      });\n    };\n  })(jQuery);\n\n}).call(this);\n",
@@ -61,7 +68,7 @@ window["distri/dumper:master"]({
     },
     "lib/paste": {
       "path": "lib/paste",
-      "content": "(function() {\n  (function($) {\n    $.event.fix = (function(originalFix) {\n      return function(event) {\n        event = originalFix.apply(this, arguments);\n        if (event.type.indexOf('copy') === 0 || event.type.indexOf('paste') === 0) {\n          event.clipboardData = event.originalEvent.clipboardData;\n        }\n        return event;\n      };\n    })($.event.fix);\n    return $.fn.pasteFile = function(handler) {\n      return this.each(function() {\n        var $this, element;\n        element = this;\n        $this = $(this);\n        return $this.bind('paste', function(event) {\n          var clipboardData, _i, _ref, _results;\n          clipboardData = event.clipboardData;\n          console.log(\"pasted!\");\n          debugger;\n          return (function() {\n            _results = [];\n            for (var _i = 0, _ref = clipboardData.types.length; 0 <= _ref ? _i < _ref : _i > _ref; 0 <= _ref ? _i++ : _i--){ _results.push(_i); }\n            return _results;\n          }).apply(this).forEach(function(i) {\n            return console.log(clipboardData.items[i].getAsFile());\n          });\n        });\n      });\n    };\n  })(jQuery);\n\n}).call(this);\n",
+      "content": "(function() {\n  (function($) {\n    $.event.fix = (function(originalFix) {\n      return function(event) {\n        event = originalFix.apply(this, arguments);\n        if (event.type.indexOf('copy') === 0 || event.type.indexOf('paste') === 0) {\n          event.clipboardData = event.originalEvent.clipboardData;\n        }\n        return event;\n      };\n    })($.event.fix);\n    return $.fn.pasteFile = function(handler) {\n      return this.each(function() {\n        var $this, element;\n        element = this;\n        $this = $(this);\n        return $this.bind('paste', function(event) {\n          var clipboardData, _i, _ref, _results;\n          clipboardData = event.clipboardData;\n          return (function() {\n            _results = [];\n            for (var _i = 0, _ref = clipboardData.types.length; 0 <= _ref ? _i < _ref : _i > _ref; 0 <= _ref ? _i++ : _i--){ _results.push(_i); }\n            return _results;\n          }).apply(this).forEach(function(i) {\n            var file;\n            if (file = clipboardData.items[i].getAsFile()) {\n              return handler(file);\n            }\n          });\n        });\n      });\n    };\n  })(jQuery);\n\n}).call(this);\n",
       "type": "blob"
     },
     "main": {
@@ -77,11 +84,6 @@ window["distri/dumper:master"]({
     "stash": {
       "path": "stash",
       "content": "(function() {\n  var Observable;\n\n  Observable = require(\"observable\");\n\n  module.exports = function(name) {\n    var items;\n    items = Observable([]);\n    items(JSON.parse(localStorage[name] || \"[]\"));\n    items.observe(function(newItems) {\n      return localStorage[name] = JSON.stringify(newItems);\n    });\n    return items;\n  };\n\n}).call(this);\n",
-      "type": "blob"
-    },
-    "files": {
-      "path": "files",
-      "content": "Runtime = require(\"/lib/_hamljr_runtime\");\n\nmodule.exports = (function(data) {\n  return (function() {\n    var files, __runtime;\n    __runtime = Runtime(this);\n    __runtime.push(document.createDocumentFragment());\n    __runtime.push(document.createElement(\"ul\"));\n    __runtime.classes(\"files\");\n    files = this.files;\n    __runtime.each(files, function(file) {\n      var remove;\n      remove = function() {\n        return files.remove(file);\n      };\n      __runtime.push(document.createElement(\"li\"));\n      __runtime.push(document.createElement(\"a\"));\n      __runtime.attribute(\"href\", this.path);\n      __runtime.attribute(\"target\", \"_blank\");\n      __runtime.push(document.createElement(\"span\"));\n      __runtime.text(this.name);\n      __runtime.pop();\n      __runtime.pop();\n      if (this.type.match(/^image/)) {\n        __runtime.push(document.createElement(\"img\"));\n        __runtime.attribute(\"src\", this.path);\n        __runtime.pop();\n      } else if (this.type.match(/^audio/)) {\n        __runtime.push(document.createElement(\"audio\"));\n        __runtime.attribute(\"controls\", true);\n        __runtime.push(document.createElement(\"source\"));\n        __runtime.attribute(\"src\", this.path);\n        __runtime.pop();\n        __runtime.pop();\n      }\n      __runtime.push(document.createElement(\"button\"));\n      __runtime.attribute(\"click\", remove);\n      __runtime.text(\"Delete\\n\");\n      __runtime.pop();\n      return __runtime.pop();\n    });\n    __runtime.pop();\n    return __runtime.pop();\n  }).call(data);\n});\n",
       "type": "blob"
     },
     "style": {
