@@ -1,8 +1,6 @@
 Paste
 =====
 
-TODO: This isn't so simple as the file dropping :(
-
     do ($=jQuery) ->
       $.event.fix = do (originalFix=$.event.fix) ->
         (event) ->
@@ -20,10 +18,8 @@ TODO: This isn't so simple as the file dropping :(
 
           $this.bind 'paste', (event) ->
             clipboardData = event.clipboardData
-            console.log "pasted!"
-            debugger
-            [0...clipboardData.types.length].forEach (i) ->
-              console.log clipboardData.items[i].getAsFile()
 
-            # TODO: Handle other types?
-            # handler clipboardData.items[0]
+            # Invoke the handler for any file types pasted
+            [0...clipboardData.types.length].forEach (i) ->
+              if file = clipboardData.items[i].getAsFile()
+                handler file
